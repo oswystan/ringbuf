@@ -23,12 +23,17 @@
 struct rb_handle_t {
     void* ptr;
     unsigned int size;
+    unsigned int owned;
     uint64_t wp;
     uint64_t rp;
     pthread_mutex_t mutex;
 };
 
 struct rb_handle_t* rb_create(unsigned int size) {
+    if (0 == size) {
+        return NULL;
+    }
+
     struct rb_handle_t* h = (struct rb_handle_t*)malloc(sizeof(struct rb_handle_t));
     void* ptr = malloc(size);
     if (!h || !ptr) {
@@ -38,6 +43,7 @@ struct rb_handle_t* rb_create(unsigned int size) {
     memset(ptr, 0x00, size);
     h->ptr = ptr;
     h->size = size;
+    h->owned = 1;
     pthread_mutex_init(&h->mutex, NULL);
     return h;
 
@@ -68,6 +74,32 @@ void rb_reset(struct rb_handle_t* h) {
         h->wp = h->rp = 0;
         pthread_mutex_unlock(&h->mutex);
     }
+}
+
+int rb_usebuf(struct rb_handle_t* h, void* buf, unsigned int size) {
+    if (!h || !buf || size == 0) {
+        return -EINVAL;
+    }
+
+    pthread_mutex_lock(&h->mutex);
+    if (h->ptr && h->owned) {
+        free(h->ptr);
+    }
+    h->ptr = buf;
+    h->owned = 0;
+    h->wp = h->rp = 0;
+    pthread_mutex_unlock(&h->mutex);
+    return 0;
+}
+
+void* rb_getbuf(struct rb_handle_t* h) {
+    void* ptr = NULL;
+    if (h) {
+        pthread_mutex_lock(&h->mutex);
+        ptr = h->ptr;
+        pthread_mutex_unlock(&h->mutex);
+    }
+    return ptr;
 }
 
 int rb_write(struct rb_handle_t* h, void* buf, unsigned int size) {
@@ -120,6 +152,7 @@ int rb_read(struct rb_handle_t* h, void* buf, unsigned int size) {
 
     return ret;
 }
+
 int rb_getpos(struct rb_handle_t* h, uint64_t* r, uint64_t* w) {
     if (!h) return -EINVAL;
     if (r) *r = h->rp;

@@ -19,6 +19,8 @@ struct rb_handlt_t;
 struct rb_handle_t* rb_create(unsigned int size);
 void rb_delete(struct rb_handle_t* h);
 void rb_reset(struct rb_handle_t* h);
+int rb_usebuf(struct rb_handle_t* h, void* buf, unsigned int size);
+void* rb_getbuf(struct rb_handle_t* h);
 
 int rb_write(struct rb_handle_t* h, void* buf, unsigned int size);
 int rb_read(struct rb_handle_t* h, void* buf, unsigned int size);

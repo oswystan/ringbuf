@@ -27,13 +27,24 @@ int test_rb() {
     struct rb_handle_t* h = rb_create(total);
     char* p = malloc(total+1);
     char* c = malloc(total+1);
+    char* t = malloc(total+1);
+    rb_assert(h != NULL);
+    rb_assert(p != NULL);
+    rb_assert(c != NULL);
+    rb_assert(t != NULL);
+
     memset(p, 0x00, total+1);
     memset(c, 0x00, total+1);
     memset(p, 'A', total);
     p[total] = '\0';
 
-    rb_assert(h != NULL);
-    rb_assert(p != NULL);
+    /* usebuf and getbuf */
+    rb_assert(NULL == rb_getbuf(NULL));
+    rb_assert(NULL != rb_getbuf(h));
+    rb_assert(-EINVAL == rb_usebuf(h, NULL, 0));
+    rb_assert(-EINVAL == rb_usebuf(h, c, 0));
+    rb_assert(0 == rb_usebuf(h, c, total));
+    rb_assert(0 == rb_usebuf(h, t, total));
 
     /* write and read error case */
     rb_assert(-EINVAL == rb_write(NULL, NULL, 1));
