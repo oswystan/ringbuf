@@ -22,6 +22,7 @@ void rb_reset(struct rb_handle_t* h);
 
 int rb_write(struct rb_handle_t* h, void* buf, unsigned int size);
 int rb_read(struct rb_handle_t* h, void* buf, unsigned int size);
+int rb_getpos(struct rb_handle_t* h, uint64_t* r, uint64_t* w);
 
 #endif /*RINGBUF_H_INCLUDED*/
 

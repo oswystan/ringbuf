@@ -120,6 +120,12 @@ int rb_read(struct rb_handle_t* h, void* buf, unsigned int size) {
 
     return ret;
 }
+int rb_getpos(struct rb_handle_t* h, uint64_t* r, uint64_t* w) {
+    if (!h) return -EINVAL;
+    if (r) *r = h->rp;
+    if (w) *w = h->wp;
+    return 0;
+}
 
 /********************************** END **********************************************/
 
