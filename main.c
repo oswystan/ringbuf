@@ -116,10 +116,10 @@ int test_rb() {
 
 int main(int argc, const char *argv[]) {
     if (0 != test_rb()) {
-        printf("fail to test rb\n");
+        printf("FAILED!\n");
         return -1;
     } else {
-        printf("pass\n");
+        printf("PASS\n");
         return 0;
     }
 }
